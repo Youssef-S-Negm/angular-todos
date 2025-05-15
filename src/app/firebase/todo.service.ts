@@ -22,7 +22,11 @@ export default class TodoService {
   }
 
   getTodos$() {
-    return (collectionData(this.todosCollection) as Observable<Todo[]>).pipe(
+    return (
+      collectionData(this.todosCollection, { idField: 'id' }) as Observable<
+        Todo[]
+      >
+    ).pipe(
       tap({
         next: (val) => this.todos.set(val),
       })
