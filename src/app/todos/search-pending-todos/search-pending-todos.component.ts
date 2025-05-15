@@ -1,9 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-search-pending-todos',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './search-pending-todos.component.html',
   styleUrl: './search-pending-todos.component.css',
 })
-export class SearchPendingTodosComponent {}
+export class SearchPendingTodosComponent {
+  query = signal('');
+  onSubmitQuery = output<string>();
+
+  onSubmit() {
+    this.onSubmitQuery.emit(this.query());
+  }
+}
