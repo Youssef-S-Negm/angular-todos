@@ -8,7 +8,7 @@
       <option value="priority-asc">priority (low to high)</option>
       <option value="priority-desc">priority (high to low)</option>
     </select>
-    @for (todo of todos(); track $index) {
+    @for (todo of todos(); track todo.id) {
     <app-todo [todo]="todo" />
     }
   </div>
