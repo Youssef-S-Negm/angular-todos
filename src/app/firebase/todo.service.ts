@@ -23,9 +23,13 @@ export default class TodoService {
 
   addTodo$(todo: Todo) {
     this.isFetching.set(true);
+    const prevTodos = this.todos();
 
     return from(addDoc(this.todosCollection, todo)).pipe(
       tap({
+        next: (val) => {
+          this.todos.set([...prevTodos, { ...todo, id: val.id }]);
+        },
         complete: () => this.isFetching.set(false),
       })
     );
@@ -54,11 +58,22 @@ export default class TodoService {
 
   updateTodoStatus$(todo: Todo, status: Status) {
     this.isFetching.set(true);
+    const prevTodos = this.todos();
 
     return from(
       updateDoc(doc(this.firestore, 'todos', todo.id!), { status })
     ).pipe(
       tap({
+        next: () => {
+          for (let i = 0; i < prevTodos.length; i++) {
+            if (prevTodos[i].id === todo.id) {
+              prevTodos[i] = { ...prevTodos[i], status };
+              break;
+            }
+          }
+
+          this.todos.set([...prevTodos]);
+        },
         complete: () => this.isFetching.set(false),
       })
     );
@@ -66,11 +81,22 @@ export default class TodoService {
 
   updateTodoPriority$(todo: Todo, priority: Priority) {
     this.isFetching.set(true);
+    const prevTodos = this.todos();
 
     return from(
       updateDoc(doc(this.firestore, 'todos', todo.id!), { priority })
     ).pipe(
       tap({
+        next: () => {
+          for (let i = 0; i < prevTodos.length; i++) {
+            if (prevTodos[i].id === todo.id) {
+              prevTodos[i] = { ...prevTodos[i], priority };
+              break;
+            }
+          }
+
+          this.todos.set([...prevTodos]);
+        },
         complete: () => this.isFetching.set(false),
       })
     );
