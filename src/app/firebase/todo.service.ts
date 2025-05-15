@@ -20,4 +20,12 @@ export default class TodoService {
   addTodo$(todo: Todo) {
     return from(addDoc(this.todosCollection, todo));
   }
+
+  getTodos$() {
+    return (collectionData(this.todosCollection) as Observable<Todo[]>).pipe(
+      tap({
+        next: (val) => this.todos.set(val),
+      })
+    );
+  }
 }
