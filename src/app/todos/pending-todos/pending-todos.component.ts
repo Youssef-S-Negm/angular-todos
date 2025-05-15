@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { SearchPendingTodosComponent } from '../search-pending-todos/search-pending-todos.component';
-import TaskService from '../../firebase/todo.service';
+import TodoService from '../../firebase/todo.service';
 import { TodoComponent } from '../todo/todo.component';
 import { FormsModule } from '@angular/forms';
 
@@ -17,11 +17,11 @@ type SortOptionValue =
   styleUrl: './pending-todos.component.css',
 })
 export class PendingTodosComponent {
-  private taskService = inject(TaskService);
+  private todoService = inject(TodoService);
   selectedSortOption = signal<SortOptionValue>('date-asc');
   searchQuery = signal('');
   todos = computed(() =>
-    this.taskService
+    this.todoService
       .allTodos()
       .filter((todo) => {
         if (this.searchQuery().length > 0) {
