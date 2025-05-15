@@ -1,10 +1,12 @@
 import { inject, Injectable, signal } from '@angular/core';
-import Todo from '../models/todo.model';
+import Todo, { Status } from '../models/todo.model';
 import {
   addDoc,
   collection,
   collectionData,
+  doc,
   Firestore,
+  updateDoc,
 } from '@angular/fire/firestore';
 import { from, Observable, tap } from 'rxjs';
 
@@ -31,5 +33,9 @@ export default class TodoService {
         next: (val) => this.todos.set(val),
       })
     );
+  }
+
+  updateTodoStatus$(todo: Todo, status: Status) {
+    return from(updateDoc(doc(this.firestore, 'todos', todo.id!), { status }));
   }
 }
