@@ -20,7 +20,9 @@ export class AddTodosComponent {
         status: 'pending',
         title: this.title(),
       })
-      .subscribe();
+      .subscribe({
+        next: () => this.title.set(''),
+      });
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }
