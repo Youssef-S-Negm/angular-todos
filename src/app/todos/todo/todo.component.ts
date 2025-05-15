@@ -1,5 +1,5 @@
 import { Component, DestroyRef, inject, input } from '@angular/core';
-import Todo, { Status } from '../../models/todo.model';
+import Todo, { Priority, Status } from '../../models/todo.model';
 import TodoService from '../../firebase/todo.service';
 
 @Component({
@@ -19,6 +19,16 @@ export class TodoComponent {
 
     const subscription = this.todoService
       .updateTodoStatus$(this.todo(), newStatus)
+      .subscribe();
+
+    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+  }
+
+  onChangePriority() {
+    const newPriority: Priority = this.todo().priority === 1 ? 2 : 1;
+
+    const subscription = this.todoService
+      .updateTodoPriority$(this.todo(), newPriority)
       .subscribe();
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());

@@ -3,6 +3,7 @@
     <i
       class="fa-solid fa-triangle-exclamation"
       [class.text-danger]="todo().priority > 1"
+      (click)="onChangePriority()"
     ></i>
     <span>{{ todo().title }}</span>
     <input
