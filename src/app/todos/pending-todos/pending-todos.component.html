@@ -2,7 +2,12 @@
   <div class="p-3 gap-2" id="pending-todos">
     <h2>Pending Todos</h2>
     <app-search-pending-todos />
-    <select name="sort-option" id="sort-option" class="rounded mb-3">
+    <select
+      name="sort-option"
+      id="sort-option"
+      class="rounded mb-3"
+      [(ngModel)]="selectedSortOption"
+    >
       <option value="date-asc">date (oldest to newest)</option>
       <option value="date-desc">date (newest to oldest)</option>
       <option value="priority-asc">priority (low to high)</option>
