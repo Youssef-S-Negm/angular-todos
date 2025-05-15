@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import Todo, { Status } from '../models/todo.model';
+import Todo, { Priority, Status } from '../models/todo.model';
 import {
   addDoc,
   collection,
@@ -37,5 +37,11 @@ export default class TodoService {
 
   updateTodoStatus$(todo: Todo, status: Status) {
     return from(updateDoc(doc(this.firestore, 'todos', todo.id!), { status }));
+  }
+
+  updateTodoPriority$(todo: Todo, priority: Priority) {
+    return from(
+      updateDoc(doc(this.firestore, 'todos', todo.id!), { priority })
+    );
   }
 }
