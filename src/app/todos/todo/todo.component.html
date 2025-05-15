@@ -10,6 +10,7 @@
       name="status"
       [id]="todo().id"
       [checked]="todo().status === 'done'"
+      (change)="onChangeStatus()"
     />
   </div>
 </div>
