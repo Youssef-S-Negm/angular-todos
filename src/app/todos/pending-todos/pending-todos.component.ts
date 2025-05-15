@@ -19,10 +19,22 @@ type SortOptionValue =
 export class PendingTodosComponent {
   private taskService = inject(TaskService);
   selectedSortOption = signal<SortOptionValue>('date-asc');
+  searchQuery = signal('');
   todos = computed(() =>
     this.taskService
       .allTodos()
-      .filter((todo) => todo.status === 'pending')
+      .filter((todo) => {
+        if (this.searchQuery().length > 0) {
+          return (
+            todo.status === 'pending' &&
+            todo.title
+              .toLocaleLowerCase()
+              .includes(this.searchQuery().trim().toLocaleLowerCase())
+          );
+        }
+
+        return todo.status === 'pending';
+      })
       .sort((a, b) => {
         switch (this.selectedSortOption()) {
           case 'date-asc':
@@ -36,4 +48,8 @@ export class PendingTodosComponent {
         }
       })
   );
+
+  onChangeSearchQuery(input: string) {
+    this.searchQuery.set(input);
+  }
 }
