@@ -1,56 +1,99 @@
 import { inject, Injectable, signal } from '@angular/core';
 import Todo, { Priority, Status } from '../models/todo.model';
-import {
-  addDoc,
-  collection,
-  doc,
-  Firestore,
-  getDocs,
-  updateDoc,
-} from '@angular/fire/firestore';
-import { from, tap } from 'rxjs';
+import { map, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { TODOS_URL } from './firebase.config';
+
+interface TodoFirestoreDocument {
+  name?: string;
+  createTime?: string;
+  updateTime?: string;
+  fields: {
+    title: { stringValue: string };
+    status: { stringValue: string };
+    priority: { integerValue: number };
+    dateCreated: { timestampValue: string };
+  };
+}
+
+interface GetTodosResponse {
+  documents: TodoFirestoreDocument[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export default class TodoService {
-  private firestore = inject(Firestore);
-  private todosCollection = collection(this.firestore, 'todos');
   private todos = signal<Todo[]>([]);
   private isFetching = signal(false);
+  private httpClient = inject(HttpClient);
   allTodos = this.todos.asReadonly();
   isLoading = this.isFetching.asReadonly();
 
+  private convertTodoFirestoreDocumentToTodo(
+    document: TodoFirestoreDocument
+  ): Todo {
+    const parts = document.name?.split('/');
+
+    if (parts) {
+      const id = parts[parts.length - 1];
+
+      return {
+        dateCreated: new Date(document.fields.dateCreated.timestampValue),
+        priority: document.fields.priority.integerValue as Priority,
+        status: document.fields.status.stringValue as Status,
+        title: document.fields.title.stringValue,
+        id,
+      };
+    }
+
+    return {
+      dateCreated: new Date(document.fields.dateCreated.timestampValue),
+      priority: document.fields.priority.integerValue as Priority,
+      status: document.fields.status.stringValue as Status,
+      title: document.fields.title.stringValue,
+    };
+  }
+
+  private convertTodoToTodoFirestoreDocument(
+    todo: Todo
+  ): TodoFirestoreDocument {
+    return {
+      fields: {
+        dateCreated: { timestampValue: todo.dateCreated.toISOString() },
+        priority: { integerValue: todo.priority },
+        status: { stringValue: todo.status },
+        title: { stringValue: todo.title },
+      },
+    };
+  }
+
   addTodo$(todo: Todo) {
     this.isFetching.set(true);
-    const prevTodos = this.todos();
 
-    return from(addDoc(this.todosCollection, todo)).pipe(
-      tap({
-        next: (val) => {
-          this.todos.set([...prevTodos, { ...todo, id: val.id }]);
-        },
-        complete: () => this.isFetching.set(false),
-      })
-    );
+    return this.httpClient
+      .post<TodoFirestoreDocument>(
+        TODOS_URL,
+        this.convertTodoToTodoFirestoreDocument(todo)
+      )
+      .pipe(
+        map((res) => this.convertTodoFirestoreDocumentToTodo(res)),
+        tap({
+          next: (val) => this.todos.update((prev) => [...prev, val]),
+          complete: () => this.isFetching.set(false),
+        })
+      );
   }
 
   getTodos$() {
     this.isFetching.set(true);
 
-    return from(getDocs(this.todosCollection)).pipe(
+    return this.httpClient.get<GetTodosResponse>(TODOS_URL).pipe(
+      map((val) =>
+        val.documents.map((doc) => this.convertTodoFirestoreDocumentToTodo(doc))
+      ),
       tap({
-        next: (snapshot) => {
-          const mapped = snapshot.docs.map(
-            (doc) =>
-              ({
-                ...doc.data(),
-                id: doc.id,
-              } as Todo)
-          );
-
-          this.todos.set(mapped);
-        },
+        next: (val) => this.todos.set(val),
         complete: () => this.isFetching.set(false),
       })
     );
@@ -58,47 +101,51 @@ export default class TodoService {
 
   updateTodoStatus$(todo: Todo, status: Status) {
     this.isFetching.set(true);
+    const payload = this.convertTodoToTodoFirestoreDocument(todo);
+    payload.fields.status.stringValue = status;
     const prevTodos = this.todos();
 
-    return from(
-      updateDoc(doc(this.firestore, 'todos', todo.id!), { status })
-    ).pipe(
-      tap({
-        next: () => {
-          for (let i = 0; i < prevTodos.length; i++) {
-            if (prevTodos[i].id === todo.id) {
-              prevTodos[i] = { ...prevTodos[i], status };
-              break;
+    return this.httpClient
+      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .pipe(
+        tap({
+          next: () => {
+            for (let i = 0; i < prevTodos.length; i++) {
+              if (prevTodos[i].id === todo.id) {
+                prevTodos[i] = { ...prevTodos[i], status };
+                break;
+              }
             }
-          }
 
-          this.todos.set([...prevTodos]);
-        },
-        complete: () => this.isFetching.set(false),
-      })
-    );
+            this.todos.set([...prevTodos]);
+          },
+          complete: () => this.isFetching.set(false),
+        })
+      );
   }
 
   updateTodoPriority$(todo: Todo, priority: Priority) {
     this.isFetching.set(true);
+    const payload = this.convertTodoToTodoFirestoreDocument(todo);
+    payload.fields.priority.integerValue = priority;
     const prevTodos = this.todos();
 
-    return from(
-      updateDoc(doc(this.firestore, 'todos', todo.id!), { priority })
-    ).pipe(
-      tap({
-        next: () => {
-          for (let i = 0; i < prevTodos.length; i++) {
-            if (prevTodos[i].id === todo.id) {
-              prevTodos[i] = { ...prevTodos[i], priority };
-              break;
+    return this.httpClient
+      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .pipe(
+        tap({
+          next: () => {
+            for (let i = 0; i < prevTodos.length; i++) {
+              if (prevTodos[i].id === todo.id) {
+                prevTodos[i] = { ...prevTodos[i], priority };
+                break;
+              }
             }
-          }
 
-          this.todos.set([...prevTodos]);
-        },
-        complete: () => this.isFetching.set(false),
-      })
-    );
+            this.todos.set([...prevTodos]);
+          },
+          complete: () => this.isFetching.set(false),
+        })
+      );
   }
 }
