@@ -25,7 +25,7 @@ export class TodoComponent {
   }
 
   onChangePriority() {
-    const newPriority: Priority = this.todo().priority === 1 ? 2 : 1;
+    const newPriority: Priority = Number(this.todo().priority) === 1 ? 2 : 1;
 
     const subscription = this.todoService
       .updateTodoPriority$(this.todo(), newPriority)
