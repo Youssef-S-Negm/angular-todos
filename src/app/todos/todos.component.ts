@@ -14,6 +14,7 @@ import { SpinnerComponent } from '../spinner/spinner.component';
     SpinnerComponent,
   ],
   templateUrl: './todos.component.html',
+  providers: [TodoService],
 })
 export class TodosComponent implements OnInit {
   private todoService = inject(TodoService);
