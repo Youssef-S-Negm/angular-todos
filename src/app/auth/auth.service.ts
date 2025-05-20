@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { LOGIN_URL, SIGNUP_URL } from '../firebase/firebase.config';
-import { BehaviorSubject, tap } from 'rxjs';
+import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { User } from '../models/user.model';
 
 interface AuthResponse {
@@ -43,6 +43,10 @@ export class AuthService {
       .pipe(
         tap({
           complete: () => this.isAuthenticating.set(false),
+        }),
+        catchError((error) => {
+          this.isAuthenticating.set(false);
+          return throwError(() => error);
         })
       );
   }
@@ -66,6 +70,10 @@ export class AuthService {
               Number(response.expiresIn)
             ),
           complete: () => this.isAuthenticating.set(false),
+        }),
+        catchError((error) => {
+          this.isAuthenticating.set(false);
+          return throwError(() => error);
         })
       );
   }

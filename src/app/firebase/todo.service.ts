@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import Todo, { Priority, Status } from '../models/todo.model';
-import { map, tap } from 'rxjs';
+import { catchError, map, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { TODOS_URL } from './firebase.config';
 
@@ -79,6 +79,10 @@ export default class TodoService {
         tap({
           next: (val) => this.todos.update((prev) => [...prev, val]),
           complete: () => this.isFetching.set(false),
+        }),
+        catchError((error) => {
+          this.isFetching.set(false);
+          return throwError(() => error);
         })
       );
   }
@@ -93,6 +97,10 @@ export default class TodoService {
       tap({
         next: (val) => this.todos.set(val),
         complete: () => this.isFetching.set(false),
+      }),
+      catchError((error) => {
+        this.isFetching.set(false);
+        return throwError(() => error);
       })
     );
   }
@@ -118,6 +126,10 @@ export default class TodoService {
             this.todos.set([...prevTodos]);
           },
           complete: () => this.isFetching.set(false),
+        }),
+        catchError((error) => {
+          this.isFetching.set(false);
+          return throwError(() => error);
         })
       );
   }
@@ -143,6 +155,10 @@ export default class TodoService {
             this.todos.set([...prevTodos]);
           },
           complete: () => this.isFetching.set(false),
+        }),
+        catchError((error) => {
+          this.isFetching.set(false);
+          return throwError(() => error);
         })
       );
   }
