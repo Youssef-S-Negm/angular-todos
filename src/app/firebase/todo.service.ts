@@ -20,9 +20,7 @@ interface GetTodosResponse {
   documents: TodoFirestoreDocument[];
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export default class TodoService {
   private todos = signal<Todo[]>([]);
   private isFetching = signal(false);
