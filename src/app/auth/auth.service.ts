@@ -27,9 +27,14 @@ export class AuthService {
   private httpClient = inject(HttpClient);
   private isAuthenticating = signal(false);
   private tokenExpirationTimer: any;
+  private authenticatedUserId: string | null = null;
 
   isLoading = this.isAuthenticating.asReadonly();
   user = new BehaviorSubject<User | null>(null);
+
+  get userId() {
+    return this.authenticatedUserId;
+  }
 
   register$(email: string, password: string) {
     this.isAuthenticating.set(true);
@@ -97,6 +102,7 @@ export class AuthService {
       const expirationDuration =
         new Date(storedUserData._tokenExpirationDate).getTime() -
         new Date().getTime();
+      this.authenticatedUserId = loadedUser.id;
 
       this.user.next(loadedUser);
       this.autoLogout(expirationDuration);
@@ -112,6 +118,7 @@ export class AuthService {
     }
 
     this.tokenExpirationTimer = null;
+    this.authenticatedUserId = null;
   }
 
   autoLogout(expirationDuration: number) {
@@ -128,6 +135,7 @@ export class AuthService {
   ) {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     const user = new User(email, userId, token, expirationDate);
+    this.authenticatedUserId = userId;
 
     this.user.next(user);
     localStorage.setItem('user', JSON.stringify(user));
