@@ -1,9 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
-import Todo, { Priority, Status } from '../models/todo.model';
+import Todo, { Priority, Status } from './models/todo.model';
 import { catchError, map, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { TODOS_URL, FIRESTORE_URL_QUERY_ENABLED } from './firebase.config';
-import { AuthService } from '../auth/auth.service';
+import { TODOS_URL, FIRESTORE_URL_QUERY_ENABLED } from './firebase/firebase.config';
+import { AuthService } from './auth/auth.service';
 
 interface TodoFirestoreDocument {
   name?: string;
@@ -23,7 +23,7 @@ interface GetTodosResponse {
 }
 
 @Injectable()
-export default class TodoService {
+export default class TodosService {
   private todos = signal<Todo[]>([]);
   private isFetching = signal(false);
   private httpClient = inject(HttpClient);
