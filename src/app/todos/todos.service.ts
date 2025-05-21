@@ -26,7 +26,7 @@ interface GetTodosResponse {
 }
 
 @Injectable()
-export default class TodoService {
+export default class TodosService {
   private todos = signal<Todo[]>([]);
   private isFetching = signal(false);
   private httpClient = inject(HttpClient);
