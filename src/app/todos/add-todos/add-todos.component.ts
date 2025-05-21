@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import TodoService from '../../firebase/todo.service';
+import TodoService from '../todo.service';
 import { AuthService } from '../../auth/auth.service';
 
 @Component({

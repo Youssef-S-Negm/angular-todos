@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { AddTodosComponent } from './add-todos/add-todos.component';
 import { PendingTodosComponent } from './pending-todos/pending-todos.component';
 import { CompletedTodosComponent } from './completed-todos/completed-todos.component';
-import TodoService from '../firebase/todo.service';
+import TodoService from './todo.service';
 import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({

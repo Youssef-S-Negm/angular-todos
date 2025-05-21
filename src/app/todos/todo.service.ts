@@ -2,7 +2,10 @@ import { inject, Injectable, signal } from '@angular/core';
 import Todo, { Priority, Status } from '../models/todo.model';
 import { catchError, map, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { TODOS_URL, FIRESTORE_URL_QUERY_ENABLED } from './firebase.config';
+import {
+  TODOS_URL,
+  FIRESTORE_URL_QUERY_ENABLED,
+} from '../firebase/firebase.config';
 import { AuthService } from '../auth/auth.service';
 
 interface TodoFirestoreDocument {
@@ -113,25 +116,27 @@ export default class TodoService {
       },
     };
 
-    return this.httpClient.post<GetTodosResponse[]>(FIRESTORE_URL_QUERY_ENABLED, body).pipe(
-      map((val) => {
-        if (val[0].document) {
-          return val.map((doc) =>
-            this.convertTodoFirestoreDocumentToTodo(doc.document)
-          );
-        }
+    return this.httpClient
+      .post<GetTodosResponse[]>(FIRESTORE_URL_QUERY_ENABLED, body)
+      .pipe(
+        map((val) => {
+          if (val[0].document) {
+            return val.map((doc) =>
+              this.convertTodoFirestoreDocumentToTodo(doc.document)
+            );
+          }
 
-        return [];
-      }),
-      tap({
-        next: (val) => this.todos.set(val),
-        complete: () => this.isFetching.set(false),
-      }),
-      catchError((error) => {
-        this.isFetching.set(false);
-        return throwError(() => error);
-      })
-    );
+          return [];
+        }),
+        tap({
+          next: (val) => this.todos.set(val),
+          complete: () => this.isFetching.set(false),
+        }),
+        catchError((error) => {
+          this.isFetching.set(false);
+          return throwError(() => error);
+        })
+      );
   }
 
   updateTodoStatus$(todo: Todo, status: Status) {
@@ -141,10 +146,7 @@ export default class TodoService {
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(
-        `${TODOS_URL}/${todo.id}`,
-        payload
-      )
+      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
       .pipe(
         tap({
           next: () => {
@@ -173,10 +175,7 @@ export default class TodoService {
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(
-        `${TODOS_URL}/${todo.id}`,
-        payload
-      )
+      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
       .pipe(
         tap({
           next: () => {
