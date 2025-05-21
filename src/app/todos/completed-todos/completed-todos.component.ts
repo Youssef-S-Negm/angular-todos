@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TodoComponent } from '../todo/todo.component';
-import TodoService from '../todo.service';
+import TodoService from '../todos.service';
 
 @Component({
   selector: 'app-completed-todos',

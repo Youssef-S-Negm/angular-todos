@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { SearchPendingTodosComponent } from '../search-pending-todos/search-pending-todos.component';
-import TodoService from '../todo.service';
+import TodoService from '../todos.service';
 import { TodoComponent } from '../todo/todo.component';
 import { FormsModule } from '@angular/forms';
 

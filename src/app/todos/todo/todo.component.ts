@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, input } from '@angular/core';
 import Todo, { Priority, Status } from '../../models/todo.model';
-import TodoService from '../todo.service';
+import TodoService from '../todos.service';
 
 @Component({
   selector: 'app-todo',
