@@ -1,6 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import TodoService from '../../firebase/todo.service';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-add-todos',
@@ -10,6 +11,7 @@ import TodoService from '../../firebase/todo.service';
 export class AddTodosComponent {
   private todoService = inject(TodoService);
   private destroyRef = inject(DestroyRef);
+  private authService = inject(AuthService);
   title = signal('');
 
   onSubmit() {
@@ -19,6 +21,7 @@ export class AddTodosComponent {
         priority: 1,
         status: 'pending',
         title: this.title(),
+        userId: this.authService.userId ? this.authService.userId : undefined,
       })
       .subscribe({
         next: () => this.title.set(''),

@@ -2,7 +2,8 @@ import { inject, Injectable, signal } from '@angular/core';
 import Todo, { Priority, Status } from '../models/todo.model';
 import { catchError, map, tap, throwError } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { TODOS_URL } from './firebase.config';
+import { TODOS_URL, FIRESTORE_URL_QUERY_ENABLED } from './firebase.config';
+import { AuthService } from '../auth/auth.service';
 
 interface TodoFirestoreDocument {
   name?: string;
@@ -13,11 +14,12 @@ interface TodoFirestoreDocument {
     status: { stringValue: string };
     priority: { integerValue: number };
     dateCreated: { timestampValue: string };
+    userId?: { stringValue: string };
   };
 }
 
 interface GetTodosResponse {
-  documents: TodoFirestoreDocument[];
+  document: TodoFirestoreDocument;
 }
 
 @Injectable()
@@ -25,6 +27,7 @@ export default class TodoService {
   private todos = signal<Todo[]>([]);
   private isFetching = signal(false);
   private httpClient = inject(HttpClient);
+  private authService = inject(AuthService);
   allTodos = this.todos.asReadonly();
   isLoading = this.isFetching.asReadonly();
 
@@ -42,6 +45,7 @@ export default class TodoService {
         status: document.fields.status.stringValue as Status,
         title: document.fields.title.stringValue,
         id,
+        userId: document.fields.userId?.stringValue,
       };
     }
 
@@ -50,6 +54,7 @@ export default class TodoService {
       priority: document.fields.priority.integerValue as Priority,
       status: document.fields.status.stringValue as Status,
       title: document.fields.title.stringValue,
+      userId: document.fields.userId?.stringValue,
     };
   }
 
@@ -62,6 +67,11 @@ export default class TodoService {
         priority: { integerValue: todo.priority },
         status: { stringValue: todo.status },
         title: { stringValue: todo.title },
+        userId: todo.userId
+          ? {
+              stringValue: todo.userId,
+            }
+          : undefined,
       },
     };
   }
@@ -90,10 +100,29 @@ export default class TodoService {
   getTodos$() {
     this.isFetching.set(true);
 
-    return this.httpClient.get<GetTodosResponse>(TODOS_URL).pipe(
-      map((val) =>
-        val.documents.map((doc) => this.convertTodoFirestoreDocumentToTodo(doc))
-      ),
+    const body = {
+      structuredQuery: {
+        from: [{ collectionId: 'todos' }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'userId' },
+            op: 'EQUAL',
+            value: { stringValue: this.authService.userId },
+          },
+        },
+      },
+    };
+
+    return this.httpClient.post<GetTodosResponse[]>(FIRESTORE_URL_QUERY_ENABLED, body).pipe(
+      map((val) => {
+        if (val[0].document) {
+          return val.map((doc) =>
+            this.convertTodoFirestoreDocumentToTodo(doc.document)
+          );
+        }
+
+        return [];
+      }),
       tap({
         next: (val) => this.todos.set(val),
         complete: () => this.isFetching.set(false),
@@ -112,7 +141,10 @@ export default class TodoService {
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .patch<TodoFirestoreDocument>(
+        `${TODOS_URL}/${todo.id}`,
+        payload
+      )
       .pipe(
         tap({
           next: () => {
@@ -141,7 +173,10 @@ export default class TodoService {
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .patch<TodoFirestoreDocument>(
+        `${TODOS_URL}/${todo.id}`,
+        payload
+      )
       .pipe(
         tap({
           next: () => {
