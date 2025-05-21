@@ -19,7 +19,10 @@ export class TodoComponent {
 
     const subscription = this.todoService
       .updateTodoStatus$(this.todo(), newStatus)
-      .subscribe();
+      .subscribe({
+        error: (error) =>
+          alert('Something went wrong. Please try again later.'),
+      });
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }
@@ -29,7 +32,10 @@ export class TodoComponent {
 
     const subscription = this.todoService
       .updateTodoPriority$(this.todo(), newPriority)
-      .subscribe();
+      .subscribe({
+        error: (error) =>
+          alert('Something went wrong. Please try again later.'),
+      });
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }

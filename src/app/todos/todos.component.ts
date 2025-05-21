@@ -22,7 +22,9 @@ export class TodosComponent implements OnInit {
   isLoading = this.todoService.isLoading;
 
   ngOnInit(): void {
-    const subscription = this.todoService.getTodos$().subscribe();
+    const subscription = this.todoService.getTodos$().subscribe({
+      error: (error) => alert('Something went wrong. Please try again later.'),
+    });
 
     this.destroyRef.onDestroy(() => subscription.unsubscribe());
   }

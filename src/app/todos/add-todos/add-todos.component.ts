@@ -15,18 +15,24 @@ export class AddTodosComponent {
   title = signal('');
 
   onSubmit() {
-    const subscription = this.todoService
-      .addTodo$({
-        dateCreated: new Date(),
-        priority: 1,
-        status: 'pending',
-        title: this.title(),
-        userId: this.authService.userId ? this.authService.userId : undefined,
-      })
-      .subscribe({
-        next: () => this.title.set(''),
-      });
+    if (this.title().length > 0) {
+      const subscription = this.todoService
+        .addTodo$({
+          dateCreated: new Date(),
+          priority: 1,
+          status: 'pending',
+          title: this.title(),
+          userId: this.authService.userId ? this.authService.userId : undefined,
+        })
+        .subscribe({
+          next: () => this.title.set(''),
+          error: (error) =>
+            alert('Something went wrong. Please try again later.'),
+        });
 
-    this.destroyRef.onDestroy(() => subscription.unsubscribe());
+      this.destroyRef.onDestroy(() => subscription.unsubscribe());
+    } else {
+      alert('Please enter a todo title');
+    }
   }
 }
