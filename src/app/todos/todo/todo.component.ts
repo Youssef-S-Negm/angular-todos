@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, input } from '@angular/core';
 import Todo, { Priority, Status } from '../../models/todo.model';
-import TodosService from '../../todos.service';
+import TodoService from '../../firebase/todo.service';
 
 @Component({
   selector: 'app-todo',
@@ -10,7 +10,7 @@ import TodosService from '../../todos.service';
 })
 export class TodoComponent {
   todo = input.required<Todo>();
-  private todoService = inject(TodosService);
+  private todoService = inject(TodoService);
   private destroyRef = inject(DestroyRef);
 
   onChangeStatus() {

@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { TodoComponent } from '../todo/todo.component';
-import TodosService from '../../todos.service';
+import TodoService from '../../firebase/todo.service';
 
 @Component({
   selector: 'app-completed-todos',
@@ -9,7 +9,7 @@ import TodosService from '../../todos.service';
   styleUrl: './completed-todos.component.css',
 })
 export class CompletedTodosComponent {
-  private todoService = inject(TodosService);
+  private todoService = inject(TodoService);
   todos = computed(() =>
     this.todoService.allTodos().filter((todo) => todo.status === 'done')
   );

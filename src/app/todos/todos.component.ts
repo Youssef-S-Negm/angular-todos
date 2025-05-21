@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { AddTodosComponent } from './add-todos/add-todos.component';
 import { PendingTodosComponent } from './pending-todos/pending-todos.component';
 import { CompletedTodosComponent } from './completed-todos/completed-todos.component';
-import TodosService from '../todos.service';
+import TodoService from '../firebase/todo.service';
 import { SpinnerComponent } from '../spinner/spinner.component';
 
 @Component({
@@ -14,10 +14,10 @@ import { SpinnerComponent } from '../spinner/spinner.component';
     SpinnerComponent,
   ],
   templateUrl: './todos.component.html',
-  providers: [TodosService],
+  providers: [TodoService],
 })
 export class TodosComponent implements OnInit {
-  private todoService = inject(TodosService);
+  private todoService = inject(TodoService);
   private destroyRef = inject(DestroyRef);
   isLoading = this.todoService.isLoading;
 
