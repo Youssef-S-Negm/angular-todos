@@ -4,6 +4,7 @@ export default interface Todo {
   priority: Priority;
   dateCreated: Date;
   id?: string;
+  userId?: string;
 }
 
 export type Status = 'pending' | 'done';
