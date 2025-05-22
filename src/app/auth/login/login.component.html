@@ -1,43 +1,39 @@
-<div class="card">
-  <div class="car-body p-2 shadow">
-    <h2>Login</h2>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="row">
-        <mat-form-field class="col-12 col-md-6">
-          <mat-label>Email</mat-label>
-          <input
-            matInput
-            formControlName="email"
-            (blur)="updateEmailErrorMessage()"
-          />
-          <mat-error>{{ emailErrorMessage() }}</mat-error>
-        </mat-form-field>
-        <mat-form-field class="col-12 col-md-6">
-          <mat-label>Password</mat-label>
-          <input
-            matInput
-            formControlName="password"
-            [type]="isPasswordVisible() ? 'text' : 'password'"
-            (blur)="updatePasswordErrorMessage()"
-          />
-          <button
-            mat-icon-button
-            matSuffix
-            (click)="onClickPasswordVisibilty($event)"
-          >
-            <mat-icon>{{
-              isPasswordVisible() ? "visibility" : "visibility_off"
-            }}</mat-icon>
-          </button>
-          <mat-error>{{ paswwordErrorMessage() }}</mat-error>
-        </mat-form-field>
-      </div>
-      <div class="d-flex flex-row-reverse gap-2">
-        <button mat-flat-button type="submit">Login</button>
-        <button mat-stroked-button type="button" (click)="onClickSignUp()">
-          Sign up
-        </button>
-      </div>
-    </form>
+<h2>Login</h2>
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <div class="row">
+    <mat-form-field class="col-12 col-md-6">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        formControlName="email"
+        (blur)="updateEmailErrorMessage()"
+      />
+      <mat-error>{{ emailErrorMessage() }}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="col-12 col-md-6">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        [type]="isPasswordVisible() ? 'text' : 'password'"
+        (blur)="updatePasswordErrorMessage()"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        (click)="onClickPasswordVisibilty($event)"
+      >
+        <mat-icon>{{
+          isPasswordVisible() ? "visibility" : "visibility_off"
+        }}</mat-icon>
+      </button>
+      <mat-error>{{ paswwordErrorMessage() }}</mat-error>
+    </mat-form-field>
   </div>
-</div>
+  <div class="d-flex flex-row-reverse gap-2">
+    <button mat-flat-button type="submit">Login</button>
+    <button mat-stroked-button type="button" (click)="onClickSignUp()">
+      Sign up
+    </button>
+  </div>
+</form>
