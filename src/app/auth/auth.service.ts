@@ -4,7 +4,7 @@ import { LOGIN_URL, SIGNUP_URL } from '../firebase/firebase.config';
 import { BehaviorSubject, catchError, tap, throwError } from 'rxjs';
 import { User } from '../models/user.model';
 
-interface AuthResponse {
+export interface AuthResponse {
   idToken: string;
   email: string;
   refreshToken: string;
