@@ -1,29 +1,36 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { AuthService } from './auth/auth.service';
+import { BehaviorSubject } from 'rxjs';
+import { User } from './models/user.model';
 
 describe('AppComponent', () => {
+  let component: AppComponent;
+  let fixture: ComponentFixture<AppComponent>;
+  let authServiceMock: jasmine.SpyObj<AuthService>;
+
   beforeEach(async () => {
+    authServiceMock = jasmine.createSpyObj('AuthService', [
+      'autoLogin',
+      'user',
+    ]);
+    authServiceMock.user = new BehaviorSubject<User | null>(null);
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [{ provide: AuthService, useValue: authServiceMock }],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    component = fixture.componentInstance;
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 
-  it(`should have the 'angular-todos' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('angular-todos');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
+  it('should call authService.autoLogin on start', () => {
     fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, angular-todos');
+    expect(authServiceMock.autoLogin).toHaveBeenCalled();
   });
 });
