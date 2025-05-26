@@ -8,7 +8,7 @@ import {
 } from '../firebase/firebase.config';
 import { AuthService } from '../auth/auth.service';
 
-interface TodoFirestoreDocument {
+export interface TodoFirestoreDocument {
   name?: string;
   createTime?: string;
   updateTime?: string;
@@ -21,7 +21,7 @@ interface TodoFirestoreDocument {
   };
 }
 
-interface GetTodosResponse {
+export interface GetTodosResponse {
   document: TodoFirestoreDocument;
 }
 
