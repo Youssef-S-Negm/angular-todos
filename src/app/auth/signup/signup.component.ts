@@ -56,7 +56,7 @@ export class SignupComponent {
   private destroyRef = inject(DestroyRef);
 
   emailErrorMessage = signal('');
-  paswwordErrorMessage = signal('');
+  passwordErrorMessage = signal('');
   confirmPasswordErrorMessage = signal('');
   isPasswordVisible = signal(false);
   isConfirmPasswordVisible = signal(false);
@@ -80,7 +80,7 @@ export class SignupComponent {
     if (this.form.controls.email.hasError('required')) {
       this.emailErrorMessage.set('Email is required');
     } else if (this.form.controls.email.hasError('email')) {
-      this.emailErrorMessage.set('Entered a valid email');
+      this.emailErrorMessage.set('Enter a valid email');
     } else {
       this.emailErrorMessage.set('');
     }
@@ -88,13 +88,13 @@ export class SignupComponent {
 
   updatePasswordErrorMessage() {
     if (this.form.controls.password.hasError('required')) {
-      this.paswwordErrorMessage.set('Please enter a password');
+      this.passwordErrorMessage.set('Please enter a password');
     } else if (this.form.controls.password.hasError('minlength')) {
-      this.paswwordErrorMessage.set(
+      this.passwordErrorMessage.set(
         'Password must be at least 6 characters long'
       );
     } else {
-      this.paswwordErrorMessage.set('');
+      this.passwordErrorMessage.set('');
     }
   }
 
@@ -123,10 +123,6 @@ export class SignupComponent {
   }
 
   onSubmit() {
-    this.updateEmailErrorMessage();
-    this.updatePasswordErrorMessage();
-    this.updateConfirmPasswordErrorMessage();
-
     if (this.form.valid && this.form.value.email && this.form.value.password) {
       const subscription = this.authService
         .register$(this.form.value.email, this.form.value.password)

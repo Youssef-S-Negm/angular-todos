@@ -30,7 +30,7 @@ export class LoginComponent {
   private destroyRef = inject(DestroyRef);
 
   emailErrorMessage = signal('');
-  paswwordErrorMessage = signal('');
+  passwordErrorMessage = signal('');
   isPasswordVisible = signal(false);
 
   form = new FormGroup({
@@ -46,7 +46,7 @@ export class LoginComponent {
     if (this.form.controls.email.hasError('required')) {
       this.emailErrorMessage.set('Email is required');
     } else if (this.form.controls.email.hasError('email')) {
-      this.emailErrorMessage.set('Entered a valid email');
+      this.emailErrorMessage.set('Enter a valid email');
     } else {
       this.emailErrorMessage.set('');
     }
@@ -54,13 +54,13 @@ export class LoginComponent {
 
   updatePasswordErrorMessage() {
     if (this.form.controls.password.hasError('required')) {
-      this.paswwordErrorMessage.set('Please enter a password');
+      this.passwordErrorMessage.set('Please enter a password');
     } else if (this.form.controls.password.hasError('minlength')) {
-      this.paswwordErrorMessage.set(
+      this.passwordErrorMessage.set(
         'Password must be at least 6 characters long'
       );
     } else {
-      this.paswwordErrorMessage.set('');
+      this.passwordErrorMessage.set('');
     }
   }
 
@@ -70,9 +70,6 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    this.updateEmailErrorMessage();
-    this.updatePasswordErrorMessage();
-
     if (this.form.valid && this.form.value.email && this.form.value.password) {
       const subscription = this.authService
         .login$(this.form.value.email, this.form.value.password)

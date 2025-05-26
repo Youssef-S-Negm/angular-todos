@@ -19,6 +19,7 @@
         (blur)="updatePasswordErrorMessage()"
       />
       <button
+        id="password-visibilty-btn"
         mat-icon-button
         matSuffix
         (click)="onClickPasswordVisibilty($event)"
@@ -27,7 +28,7 @@
           isPasswordVisible() ? "visibility" : "visibility_off"
         }}</mat-icon>
       </button>
-      <mat-error>{{ paswwordErrorMessage() }}</mat-error>
+      <mat-error>{{ passwordErrorMessage() }}</mat-error>
     </mat-form-field>
   </div>
   <div class="d-flex flex-row-reverse gap-2">
