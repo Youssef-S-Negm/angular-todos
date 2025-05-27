@@ -3,14 +3,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import {
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
+import { MatStepperModule } from '@angular/material/stepper';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +16,7 @@ import { AuthService } from '../auth.service';
     MatIconModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatStepperModule,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
@@ -28,24 +25,29 @@ export class LoginComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+  private formBuilder = inject(FormBuilder);
 
   emailErrorMessage = signal('');
   passwordErrorMessage = signal('');
   isPasswordVisible = signal(false);
 
-  form = new FormGroup({
-    email: new FormControl('', {
-      validators: [Validators.required, Validators.email],
+  formArray = this.formBuilder.array([
+    this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
     }),
-    password: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(6)],
+    this.formBuilder.group({
+      password: ['', [Validators.required, Validators.minLength(6)]],
     }),
-  });
+  ]);
+
+  getFormControl(index: number) {
+    return this.formArray.at(index);
+  }
 
   updateEmailErrorMessage() {
-    if (this.form.controls.email.hasError('required')) {
+    if (this.getFormControl(0).controls['email'].hasError('required')) {
       this.emailErrorMessage.set('Email is required');
-    } else if (this.form.controls.email.hasError('email')) {
+    } else if (this.getFormControl(0).controls['email'].hasError('email')) {
       this.emailErrorMessage.set('Enter a valid email');
     } else {
       this.emailErrorMessage.set('');
@@ -53,9 +55,11 @@ export class LoginComponent {
   }
 
   updatePasswordErrorMessage() {
-    if (this.form.controls.password.hasError('required')) {
+    if (this.getFormControl(1).controls['password'].hasError('required')) {
       this.passwordErrorMessage.set('Please enter a password');
-    } else if (this.form.controls.password.hasError('minlength')) {
+    } else if (
+      this.getFormControl(1).controls['password'].hasError('minlength')
+    ) {
       this.passwordErrorMessage.set(
         'Password must be at least 6 characters long'
       );
@@ -70,9 +74,12 @@ export class LoginComponent {
   }
 
   onSubmit() {
-    if (this.form.valid && this.form.value.email && this.form.value.password) {
+    if (this.getFormControl(0).valid && this.getFormControl(1).valid) {
       const subscription = this.authService
-        .login$(this.form.value.email, this.form.value.password)
+        .login$(
+          this.getFormControl(0).value['email'],
+          this.getFormControl(1).value['password']
+        )
         .subscribe({
           next: () => this.router.navigate(['todos'], { replaceUrl: true }),
         });

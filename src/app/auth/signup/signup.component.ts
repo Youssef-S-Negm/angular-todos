@@ -1,8 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
   AbstractControl,
-  FormControl,
-  FormGroup,
+  FormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
   Validators,
@@ -11,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatStepperModule } from '@angular/material/stepper';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
 
@@ -46,6 +46,7 @@ function equalValues(control: AbstractControl): ValidationErrors | null {
     MatIconModule,
     ReactiveFormsModule,
     MatButtonModule,
+    MatStepperModule,
   ],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
@@ -54,6 +55,7 @@ export class SignupComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
   private destroyRef = inject(DestroyRef);
+  private formBuilder = inject(FormBuilder);
 
   emailErrorMessage = signal('');
   passwordErrorMessage = signal('');
@@ -61,25 +63,27 @@ export class SignupComponent {
   isPasswordVisible = signal(false);
   isConfirmPasswordVisible = signal(false);
 
-  form = new FormGroup(
-    {
-      email: new FormControl('', {
-        validators: [Validators.required, Validators.email],
-      }),
-      password: new FormControl('', {
-        validators: [Validators.required, Validators.minLength(6)],
-      }),
-      confirmPassword: new FormControl('', {
-        validators: [Validators.required],
-      }),
-    },
-    { validators: [equalValues] }
-  );
+  formArray = this.formBuilder.array([
+    this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+    }),
+    this.formBuilder.group(
+      {
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      { validators: [equalValues] }
+    ),
+  ]);
+
+  getFormControl(index: number) {
+    return this.formArray.at(index);
+  }
 
   updateEmailErrorMessage() {
-    if (this.form.controls.email.hasError('required')) {
+    if (this.getFormControl(0).controls['email'].hasError('required')) {
       this.emailErrorMessage.set('Email is required');
-    } else if (this.form.controls.email.hasError('email')) {
+    } else if (this.getFormControl(0).controls['email'].hasError('email')) {
       this.emailErrorMessage.set('Enter a valid email');
     } else {
       this.emailErrorMessage.set('');
@@ -87,9 +91,11 @@ export class SignupComponent {
   }
 
   updatePasswordErrorMessage() {
-    if (this.form.controls.password.hasError('required')) {
+    if (this.getFormControl(1).controls['password'].hasError('required')) {
       this.passwordErrorMessage.set('Please enter a password');
-    } else if (this.form.controls.password.hasError('minlength')) {
+    } else if (
+      this.getFormControl(1).controls['password'].hasError('minlength')
+    ) {
       this.passwordErrorMessage.set(
         'Password must be at least 6 characters long'
       );
@@ -99,9 +105,15 @@ export class SignupComponent {
   }
 
   updateConfirmPasswordErrorMessage() {
-    if (this.form.controls.confirmPassword.hasError('required')) {
+    if (
+      this.getFormControl(1).controls['confirmPassword'].hasError('required')
+    ) {
       this.confirmPasswordErrorMessage.set('Please confirm your password');
-    } else if (this.form.controls.confirmPassword.hasError('notEqualValues')) {
+    } else if (
+      this.getFormControl(1).controls['confirmPassword'].hasError(
+        'notEqualValues'
+      )
+    ) {
       this.confirmPasswordErrorMessage.set("Passwords don't match.");
     } else {
       this.confirmPasswordErrorMessage.set('');
@@ -123,9 +135,12 @@ export class SignupComponent {
   }
 
   onSubmit() {
-    if (this.form.valid && this.form.value.email && this.form.value.password) {
+    if (this.getFormControl(0).valid && this.getFormControl(1).valid) {
       const subscription = this.authService
-        .register$(this.form.value.email, this.form.value.password)
+        .register$(
+          this.getFormControl(0).value['email'],
+          this.getFormControl(1).value['password']
+        )
         .subscribe({
           next: () =>
             this.router.navigate(['auth', 'login'], { replaceUrl: true }),
