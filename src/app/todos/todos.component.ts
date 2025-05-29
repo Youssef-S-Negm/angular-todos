@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { AddTodosComponent } from './add-todos/add-todos.component';
 import { PendingTodosComponent } from './pending-todos/pending-todos.component';
 import { CompletedTodosComponent } from './completed-todos/completed-todos.component';
-import TodoService from '../firebase/todo.service';
+import TodosService from './todos.service';
 
 @Component({
   selector: 'app-todos',
@@ -10,7 +10,7 @@ import TodoService from '../firebase/todo.service';
   templateUrl: './todos.component.html',
 })
 export class TodosComponent implements OnInit {
-  private todoService = inject(TodoService);
+  private todoService = inject(TodosService);
   private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {

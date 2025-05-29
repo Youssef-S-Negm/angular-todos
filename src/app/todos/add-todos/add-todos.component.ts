@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import TodoService from '../../firebase/todo.service';
+import TodosService from '../todos.service';
 
 @Component({
   selector: 'app-add-todos',
@@ -8,7 +8,7 @@ import TodoService from '../../firebase/todo.service';
   templateUrl: './add-todos.component.html',
 })
 export class AddTodosComponent {
-  private todoService = inject(TodoService);
+  private todoService = inject(TodosService);
   private destroyRef = inject(DestroyRef);
   title = signal('');
 

@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { HeaderComponent } from './header/header.component';
 import { TodosComponent } from './todos/todos.component';
-import TodoService from './firebase/todo.service';
+import TodosService from './todos/todos.service';
 import { SpinnerComponent } from "./spinner/spinner.component";
 
 @Component({
@@ -11,6 +11,6 @@ import { SpinnerComponent } from "./spinner/spinner.component";
   imports: [HeaderComponent, TodosComponent, SpinnerComponent],
 })
 export class AppComponent {
-  private todoService = inject(TodoService);
+  private todoService = inject(TodosService);
   isLoading = this.todoService.isLoading;
 }
