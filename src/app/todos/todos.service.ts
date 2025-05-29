@@ -4,22 +4,6 @@ import { tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { URL } from '../../enviroments/enviroments';
 
-interface TodoFirestoreDocument {
-  name?: string;
-  createTime?: string;
-  updateTime?: string;
-  fields: {
-    title: { stringValue: string };
-    status: { stringValue: string };
-    priority: { integerValue: number };
-    dateCreated: { timestampValue: string };
-  };
-}
-
-interface GetTodosResponse {
-  documents: TodoFirestoreDocument[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
@@ -83,7 +67,7 @@ export default class TodosService {
     const prevTodos = this.todos();
 
     return this.httpClient
-      .put<TodoFirestoreDocument>(`${URL}/${todo.id}`, todo)
+      .put<Todo>(`${URL}/${todo.id}`, todo)
       .pipe(
         tap({
           next: () => {
