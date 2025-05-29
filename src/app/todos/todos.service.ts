@@ -1,8 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import Todo, { Priority, Status } from '../models/todo.model';
-import { map, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { TODOS_URL } from '../firebase/firebase.config';
+import { URL } from '../../enviroments/enviroments';
 
 interface TodoFirestoreDocument {
   name?: string;
@@ -30,68 +30,22 @@ export default class TodosService {
   allTodos = this.todos.asReadonly();
   isLoading = this.isFetching.asReadonly();
 
-  private convertTodoFirestoreDocumentToTodo(
-    document: TodoFirestoreDocument
-  ): Todo {
-    const parts = document.name?.split('/');
-
-    if (parts) {
-      const id = parts[parts.length - 1];
-
-      return {
-        dateCreated: new Date(document.fields.dateCreated.timestampValue),
-        priority: document.fields.priority.integerValue as Priority,
-        status: document.fields.status.stringValue as Status,
-        title: document.fields.title.stringValue,
-        id,
-      };
-    }
-
-    return {
-      dateCreated: new Date(document.fields.dateCreated.timestampValue),
-      priority: document.fields.priority.integerValue as Priority,
-      status: document.fields.status.stringValue as Status,
-      title: document.fields.title.stringValue,
-    };
-  }
-
-  private convertTodoToTodoFirestoreDocument(
-    todo: Todo
-  ): TodoFirestoreDocument {
-    return {
-      fields: {
-        dateCreated: { timestampValue: todo.dateCreated.toISOString() },
-        priority: { integerValue: todo.priority },
-        status: { stringValue: todo.status },
-        title: { stringValue: todo.title },
-      },
-    };
-  }
 
   addTodo$(todo: Todo) {
     this.isFetching.set(true);
 
-    return this.httpClient
-      .post<TodoFirestoreDocument>(
-        TODOS_URL,
-        this.convertTodoToTodoFirestoreDocument(todo)
-      )
-      .pipe(
-        map((res) => this.convertTodoFirestoreDocumentToTodo(res)),
-        tap({
-          next: (val) => this.todos.update((prev) => [...prev, val]),
-          complete: () => this.isFetching.set(false),
-        })
-      );
+    return this.httpClient.post<Todo>(URL, todo).pipe(
+      tap({
+        next: (val) => this.todos.update((prev) => [...prev, val]),
+        complete: () => this.isFetching.set(false),
+      })
+    );
   }
 
   getTodos$() {
     this.isFetching.set(true);
 
-    return this.httpClient.get<GetTodosResponse>(TODOS_URL).pipe(
-      map((val) =>
-        val.documents.map((doc) => this.convertTodoFirestoreDocumentToTodo(doc))
-      ),
+    return this.httpClient.get<Todo[]>(URL).pipe(
       tap({
         next: (val) => this.todos.set(val),
         complete: () => this.isFetching.set(false),
@@ -101,12 +55,11 @@ export default class TodosService {
 
   updateTodoStatus$(todo: Todo, status: Status) {
     this.isFetching.set(true);
-    const payload = this.convertTodoToTodoFirestoreDocument(todo);
-    payload.fields.status.stringValue = status;
+    todo.status = status;
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .put<Todo>(`${URL}/${todo.id}`, todo)
       .pipe(
         tap({
           next: () => {
@@ -126,12 +79,11 @@ export default class TodosService {
 
   updateTodoPriority$(todo: Todo, priority: Priority) {
     this.isFetching.set(true);
-    const payload = this.convertTodoToTodoFirestoreDocument(todo);
-    payload.fields.priority.integerValue = priority;
+    todo.priority = priority
     const prevTodos = this.todos();
 
     return this.httpClient
-      .patch<TodoFirestoreDocument>(`${TODOS_URL}/${todo.id}`, payload)
+      .put<TodoFirestoreDocument>(`${URL}/${todo.id}`, todo)
       .pipe(
         tap({
           next: () => {
